@@ -1,0 +1,64 @@
+## Godot
+# Godot 4+ project data, caches, and imported assets
+.godot/
+# Godot 3.x import directory (legacy projects)
+.import/
+# Godot C# support folder (legacy Godot 3)
+.mono/
+
+# Godot export/build folders (adjust to your project structure)
+export/
+exports/
+builds/
+
+# Platform-specific export folders (optional)
+android/
+ios/
+linux/
+macos/
+windows/
+
+## .NET / F#
+# Build output
+bin/
+obj/
+[Bb]uild/
+
+# Visual Studio / Rider / Ionide
+.vs/
+.idea/
+*.sln.iml
+.ionide/
+
+# FAKE build cache
+.fake/
+
+# Paket (F# dependency manager)
+.paket/paket.exe
+.paket/paket.bootstrapper.exe
+paket-files/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Test & benchmark artifacts
+TestResult*/
+TestResults/
+*.TestResults.xml
+BenchmarkDotNet.Artifacts/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.orig
+*.tmp
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
