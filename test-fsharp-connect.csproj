@@ -17,4 +17,5 @@
     <PackageReference Include="Headsetsniper.Godot.FSharp.Annotations" Version="0.5.2" />
     <PackageReference Include="Headsetsniper.Godot.FSharp.ShimGen" Version="0.5.2" />
   </ItemGroup>
+  <Target Name="EnsureShims" DependsOnTargets="GenerateFSharpShims" />
 </Project>
