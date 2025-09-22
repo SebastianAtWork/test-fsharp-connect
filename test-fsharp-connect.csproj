@@ -4,6 +4,9 @@
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>testfsharpconnect</RootNamespace>
+    <!-- Ensure F# shim generation runs and targets expected output path -->
+    <FSharpShimsEnabled>true</FSharpShimsEnabled>
+    <FSharpShimsOutDir>$(MSBuildProjectDirectory)\Scripts\Generated</FSharpShimsOutDir>
     
   </PropertyGroup>
   <ItemGroup>
@@ -14,8 +17,49 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Headsetsniper.Godot.FSharp.Annotations" Version="0.5.2" />
-    <PackageReference Include="Headsetsniper.Godot.FSharp.ShimGen" Version="0.5.2" />
+    <PackageReference Include="Headsetsniper.Godot.FSharp.Annotations" Version="0.5.4" />
+    <PackageReference Include="Headsetsniper.Godot.FSharp.ShimGen" Version="0.5.4" />
   </ItemGroup>
-  <Target Name="EnsureShims" DependsOnTargets="GenerateFSharpShims" />
+  <!--
+    Auto-generate F# shims during build.
+    Runs after ResolveReferences so F# outputs exist; adds generated .cs files to the same compile pass.
+  -->
+  <Target Name="ResolveShimGenToolPath" BeforeTargets="RunShimGen" Condition=" '$(FSharpShimsEnabled)' != 'false' ">
+    <ItemGroup>
+      <_ShimGenPkg Include="@(PackageReference)"
+                   Condition="'%(PackageReference.Identity)' == 'Headsetsniper.Godot.FSharp.ShimGen'" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_ShimGenVersion>%(_ShimGenPkg.Version)</_ShimGenVersion>
+      <_ShimGenTool>$(NuGetPackageRoot)headsetsniper.godot.fsharp.shimgen\$(_ShimGenVersion)\lib\net8.0\Headsetsniper.Godot.FSharp.ShimGen.dll</_ShimGenTool>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="CollectFSharpOutputs" AfterTargets="ResolveReferences" BeforeTargets="RunShimGen"
+          Condition=" '$(FSharpShimsEnabled)' != 'false' ">
+    <!-- Use resolved ReferencePath to find project reference outputs that originate from .fsproj -->
+    <ItemGroup>
+      <_FSharpRefs Include="@(ReferencePath)"
+                   Condition="$([System.String]::Copy('%(ReferencePath.MSBuildSourceProjectFile)').EndsWith('.fsproj', System.StringComparison.OrdinalIgnoreCase))" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="RunShimGen" AfterTargets="ResolveReferences" BeforeTargets="CoreCompile;Compile"
+      Condition=" '$(FSharpShimsEnabled)' != 'false' and '@(_FSharpRefs)' != '' and Exists('$(_ShimGenTool)') ">
+    <MakeDir Directories="$(FSharpShimsOutDir)" Condition="!Exists('$(FSharpShimsOutDir)')" />
+    <Message Text="[ShimGen] Using tool: $(_ShimGenTool)" Importance="Low" />
+    <Message Text="[ShimGen] F# assemblies: @(_FSharpRefs)" Importance="Low" />
+    <!-- Batch over each resolved F# reference -->
+    <Exec Command="dotnet &quot;$(_ShimGenTool)&quot; &quot;%(_FSharpRefs.Identity)&quot; &quot;$(FSharpShimsOutDir)&quot; &quot;$([System.IO.Path]::GetDirectoryName('%(_FSharpRefs.MSBuildSourceProjectFile)'))&quot;"
+      WorkingDirectory="$([System.IO.Path]::GetDirectoryName('%(_FSharpRefs.Identity)'))"
+      StandardOutputImportance="Low" StandardErrorImportance="High" />
+    <ItemGroup>
+      <Compile Include="$(FSharpShimsOutDir)\**\*.cs" Visible="false" />
+      <FileWrites Include="$(FSharpShimsOutDir)\**\*.cs" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CleanGeneratedShims" AfterTargets="Clean">
+    <RemoveDir Directories="$(FSharpShimsOutDir)" Condition="Exists('$(FSharpShimsOutDir)')" />
+  </Target>
 </Project>
