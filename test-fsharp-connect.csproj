@@ -3,6 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
+    <EnableDefaultItems>false</EnableDefaultItems>
     <RootNamespace>testfsharpconnect</RootNamespace>
     <!-- Ensure F# shim generation runs and targets expected output path -->
     <FSharpShimsEnabled>true</FSharpShimsEnabled>
@@ -10,6 +11,9 @@
     
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Scenes\**\*.cs" />
+    <!-- Include hand-written scripts but exclude generated to control them explicitly below -->
+    <Compile Include="Scripts\**\*.cs" Exclude="Scripts\Generated\**\*.cs" />
     <!-- Keep paths EXACTLY as they are on disk -->
     <ProjectReference Include="FSharp\\FSharp.fsproj">
       <!-- Reference for compile so generated shims can see F# types, but do not copy to output. -->

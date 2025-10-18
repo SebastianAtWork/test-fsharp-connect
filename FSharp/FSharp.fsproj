@@ -7,7 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Foo.fs" />
+      <Compile Include="TetrisTypes.fs" />
+    <Compile Include="TetrisTickRelay.fs" />
+    <Compile Include="TetrisBagPreview.fs" />
+    <Compile Include="TetrisGridView.fs" />
+    <Compile Include="TetrisUiBoard.fs" />
+    <Compile Include="TetrisHud.fs" />
+    <Compile Include="Tetris.fs" />
   </ItemGroup>
 
   <ItemGroup>
